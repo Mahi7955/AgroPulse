@@ -23,6 +23,15 @@ import {
 } from '@/components/ui/select';
 import { cropTypes, indianStates, stateDistricts } from '@/lib/mockData';
 import { FarmDetails } from '@/lib/types';
+import { supabase } from '@/integrations/supabase/client';
+import SoilInfoCard from '@/components/SoilInfoCard';
+
+interface SoilData {
+  soilType: string;
+  characteristics: string[];
+  suitableCrops: string[];
+  tips: string;
+}
 
 const Register: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -42,6 +51,11 @@ const Register: React.FC = () => {
   const [sowingDate, setSowingDate] = useState('');
   const [season, setSeason] = useState<'Kharif' | 'Rabi' | 'Zaid' | ''>('');
   const [farmSize, setFarmSize] = useState('');
+
+  // Soil detection
+  const [soilData, setSoilData] = useState<SoilData | null>(null);
+  const [isDetectingSoil, setIsDetectingSoil] = useState(false);
+  const [soilError, setSoilError] = useState<string | null>(null);
   
   const { user, authUser, updateProfile, updateFarmDetails, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -53,9 +67,45 @@ const Register: React.FC = () => {
     }
   }, [authUser, isLoading, navigate]);
 
+  const detectSoilType = async (lat: number | null, lng: number | null, selectedState?: string, selectedDistrict?: string) => {
+    setIsDetectingSoil(true);
+    setSoilError(null);
+    setSoilData(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('soil-detector', {
+        body: {
+          latitude: lat,
+          longitude: lng,
+          state: selectedState || state,
+          district: selectedDistrict || district
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setSoilData(data);
+      toast({
+        title: 'Soil Analysis Complete!',
+        description: `Detected ${data.soilType} in your area.`,
+      });
+    } catch (error) {
+      console.error('Error detecting soil:', error);
+      setSoilError('Unable to detect soil type. Please try again.');
+    } finally {
+      setIsDetectingSoil(false);
+    }
+  };
+
   const detectLocation = () => {
     setIsLocating(true);
     setLocationError('');
+    setSoilData(null);
+    setSoilError(null);
 
     if (!navigator.geolocation) {
       setLocationError('Geolocation is not supported by your browser');
@@ -65,13 +115,18 @@ const Register: React.FC = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude);
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setLatitude(lat);
+        setLongitude(lng);
         setIsLocating(false);
         toast({
           title: 'Location detected!',
-          description: `Coordinates: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`,
+          description: `Coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
         });
+        
+        // Automatically detect soil type after location is fetched
+        detectSoilType(lat, lng);
       },
       (error) => {
         setIsLocating(false);
@@ -88,6 +143,13 @@ const Register: React.FC = () => {
       }
     );
   };
+
+  // Detect soil when district is selected manually
+  useEffect(() => {
+    if (state && district && !latitude) {
+      detectSoilType(null, null, state, district);
+    }
+  }, [district]);
 
   const handleStep1Submit = () => {
     if (!latitude && (!state || !district)) {
@@ -223,6 +285,13 @@ const Register: React.FC = () => {
               <p className="text-sm text-danger mb-4 text-center">{locationError}</p>
             )}
 
+            {/* Soil Info Card - Shows after location detection */}
+            <SoilInfoCard 
+              soilData={soilData} 
+              isLoading={isDetectingSoil} 
+              error={soilError}
+            />
+
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-border" />
@@ -236,7 +305,11 @@ const Register: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">State</label>
-                <Select value={state} onValueChange={setState}>
+                <Select value={state} onValueChange={(value) => {
+                  setState(value);
+                  setDistrict('');
+                  setSoilData(null);
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your state" />
                   </SelectTrigger>
@@ -298,6 +371,16 @@ const Register: React.FC = () => {
                 <p className="text-sm text-muted-foreground">Tell us about your current crop</p>
               </div>
             </div>
+
+            {/* Show soil recommendation in step 2 */}
+            {soilData && (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4">
+                <p className="text-sm">
+                  <span className="font-medium">Recommended crops for {soilData.soilType}:</span>{' '}
+                  <span className="text-muted-foreground">{soilData.suitableCrops.join(', ')}</span>
+                </p>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>
