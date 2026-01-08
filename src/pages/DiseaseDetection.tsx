@@ -76,77 +76,73 @@ const DiseaseDetection: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* All features stacked vertically */}
+          <div className="flex flex-col gap-6">
             {/* Main Disease Detector */}
-            <div className="lg:col-span-2">
-              <DiseaseDetector cropType={cropType} />
-            </div>
+            <DiseaseDetector cropType={cropType} />
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Tips Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-warning" />
-                    Photo Tips
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    {tips.map((tip, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="text-primary">•</span>
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+            {/* Tips Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-warning" />
+                  Photo Tips
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {tips.map((tip, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-primary">•</span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
 
-              {/* Common Diseases */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Info className="w-5 h-5 text-primary" />
-                    Common Diseases
-                  </CardTitle>
-                  <CardDescription>
-                    Watch out for these diseases in your crops
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {commonDiseases.map((item, idx) => (
-                      <div key={idx}>
-                        <p className="font-medium text-sm">{item.crop}</p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {item.diseases.map((disease, dIdx) => (
-                            <span 
-                              key={dIdx}
-                              className="text-xs bg-muted px-2 py-1 rounded-full"
-                            >
-                              {disease}
-                            </span>
-                          ))}
-                        </div>
+            {/* Common Diseases */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="w-5 h-5 text-primary" />
+                  Common Diseases
+                </CardTitle>
+                <CardDescription>
+                  Watch out for these diseases in your crops
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {commonDiseases.map((item, idx) => (
+                    <div key={idx}>
+                      <p className="font-medium text-sm">{item.crop}</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {item.diseases.map((disease, dIdx) => (
+                          <span 
+                            key={dIdx}
+                            className="text-xs bg-muted px-2 py-1 rounded-full"
+                          >
+                            {disease}
+                          </span>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Disclaimer */}
-              <Card className="bg-warning/5 border-warning/30">
-                <CardContent className="p-4">
-                  <p className="text-xs text-muted-foreground">
-                    <strong>Disclaimer:</strong> This AI-based detection is for guidance only. 
-                    For severe infections, please consult your local agricultural officer or 
-                    Krishi Vigyan Kendra (KVK) for expert advice.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Disclaimer */}
+            <Card className="bg-warning/5 border-warning/30">
+              <CardContent className="p-4">
+                <p className="text-xs text-muted-foreground">
+                  <strong>Disclaimer:</strong> This AI-based detection is for guidance only. 
+                  For severe infections, please consult your local agricultural officer or 
+                  Krishi Vigyan Kendra (KVK) for expert advice.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
