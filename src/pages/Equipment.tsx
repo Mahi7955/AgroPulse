@@ -137,6 +137,11 @@ const Equipment: React.FC = () => {
   }, []);
 
   const handleAddEquipment = async () => {
+    if (!user) {
+      toast.error('Please login first');
+      return;
+    }
+
     if (!newEquipment.equipment_type || !newEquipment.equipment_name || !newEquipment.daily_price) {
       toast.error('Please fill in all required fields');
       return;
@@ -148,10 +153,16 @@ const Equipment: React.FC = () => {
       const { data: farmer, error: farmerError } = await supabase
         .from('farmers')
         .select('id, district, state, latitude, longitude')
-        .eq('user_id', user?.id)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (farmerError || !farmer) {
+      if (farmerError) {
+        console.error('Error fetching farmer profile:', farmerError);
+        toast.error('Error loading your profile. Please try again.');
+        return;
+      }
+
+      if (!farmer) {
         toast.error('Please complete your farmer profile first');
         return;
       }
