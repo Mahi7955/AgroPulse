@@ -73,7 +73,7 @@ const Equipment: React.FC = () => {
     phone_contact: ''
   });
 
-  const { user } = useAuth();
+  const { user, authUser } = useAuth();
 
   // Get user's location
   useEffect(() => {
@@ -137,7 +137,7 @@ const Equipment: React.FC = () => {
   }, []);
 
   const handleAddEquipment = async () => {
-    if (!user) {
+    if (!authUser) {
       toast.error('Please login first');
       return;
     }
@@ -153,7 +153,7 @@ const Equipment: React.FC = () => {
       const { data: farmer, error: farmerError } = await supabase
         .from('farmers')
         .select('id, district, state, latitude, longitude')
-        .eq('user_id', user.id)
+        .eq('user_id', authUser.id)
         .maybeSingle();
 
       if (farmerError) {
