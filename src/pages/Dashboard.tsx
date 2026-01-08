@@ -164,53 +164,41 @@ const Dashboard: React.FC = () => {
           </Button>
         </div>
 
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {/* Crop Health - Full Width on Mobile */}
+        {/* Dashboard Features - Stacked Vertically */}
+        <div className="flex flex-col gap-6">
+          {/* Crop Health */}
           {cropHealth && (
-            <div className="lg:col-span-2 xl:col-span-1">
-              <HealthIndicator health={cropHealth} />
-            </div>
+            <HealthIndicator health={cropHealth} />
           )}
 
           {/* Growth Stage */}
           {growthStage && (
-            <div className="lg:col-span-1">
-              <GrowthStageCard growthStage={growthStage} cropType={farmDetails.cropType} />
-            </div>
+            <GrowthStageCard growthStage={growthStage} cropType={farmDetails.cropType} />
           )}
 
           {/* Weather Card */}
           {weather && weatherAlert && (
-            <div className="lg:col-span-2 xl:col-span-1">
-              <WeatherCard weather={weather} alert={weatherAlert} />
-            </div>
+            <WeatherCard weather={weather} alert={weatherAlert} />
           )}
 
           {/* Irrigation Advice */}
           {irrigationAdvice && (
-            <div className="lg:col-span-2 xl:col-span-2">
-              <IrrigationAdviceCard advice={irrigationAdvice} />
-            </div>
+            <IrrigationAdviceCard advice={irrigationAdvice} />
           )}
 
           {/* Mandi Prices */}
-          <div className="lg:col-span-1">
-            <MandiPriceCard 
-              prices={mandiPrices} 
-              onViewDetails={() => navigate('/markets')}
-            />
-          </div>
+          <MandiPriceCard 
+            prices={mandiPrices} 
+            onViewDetails={() => navigate('/markets')}
+          />
 
           {/* AI Advisor */}
-          <div className="lg:col-span-2 xl:col-span-3">
-            <AIAdvisor
-              cropType={farmDetails.cropType}
-              growthStage={growthStage?.stage || 'Seedling'}
-              weather={weather || { temperature: 30, humidity: 60, rainfall: 0 }}
-              modalPrice={mandiPrices[0]?.modalPrice || 2000}
-            />
-          </div>
+          <AIAdvisor
+            cropType={farmDetails.cropType}
+            growthStage={growthStage?.stage || 'Seedling'}
+            weather={weather || { temperature: 30, humidity: 60, rainfall: 0 }}
+            modalPrice={mandiPrices[0]?.modalPrice || 2000}
+          />
         </div>
 
         {/* Sustainability Tips */}
